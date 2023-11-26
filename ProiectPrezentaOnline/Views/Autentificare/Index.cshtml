@@ -1,0 +1,42 @@
+﻿@model Utilizator
+
+@{
+    ViewData["Title"] = "Autentificare";
+}
+
+@* Authentication form for Administrators! *@
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="card-title">Autentificare</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" asp-controller="Autentificare" method="post">
+                        <div class="mb-3">
+                            <label asp-for="NumeUtilizator" class="form-label"></label>
+                            <input type="text" class="form-control" asp-for="NumeUtilizator"></input>
+                            <span asp-validation-for="NumeUtilizator" class="text-primary"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Parola" class="form-label"></label>
+                            <input type="password" asp-for="Parola" class="form-control"></input>
+                            <span asp-validation-for="Parola" class="text-primary"></span>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <button type="submit" class="btn btn-primary">Autentificare</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

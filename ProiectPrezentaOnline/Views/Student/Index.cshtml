@@ -1,0 +1,125 @@
+﻿@using ProiectPrezentaOnline.Extensions
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var sesiuneCurenta = HttpContextAccessor.HttpContext.Session;
+    Utilizator utilizatorAutentificat = null;
+    Prezente prezenteStudent = null;
+    if (sesiuneCurenta != null)
+    {
+        utilizatorAutentificat = sesiuneCurenta.GetObject<Utilizator>("UtilizatorAutentificat");
+        prezenteStudent = sesiuneCurenta.GetObject<Prezente>("PrezenteStudent");
+    }
+}
+
+@if (utilizatorAutentificat != null)
+{
+    <div class="container mt-5 text-center">
+        <h1 class="display-4">Bine ai revenit, @utilizatorAutentificat.Nume! &#x1F604;</h1>
+        <p class="lead">Aici vei găsi informații utile despre situația ta la cursuri și laboratoare.</p>
+        <p>Dacă ai întrebări, ai găsit o neregulă sau ai nevoie de ajutor, nu ezita să ne contactezi.</p>
+        <a class="btn btn-outline-light btn-lg rounded-pill" href="#" role="button">
+            Contactează-ne <i class="bi bi-chat-dots"></i>
+        </a>
+
+    </div>
+
+    
+    <hr class="my-4">
+
+    @if (prezenteStudent.PrezenteCursuri.Count > 0)
+    {
+        <div class="container mt-2 text-center">
+            <h2>Prezența cursuri:</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Nume Studentului</th>
+                        <th scope="col" class="font-weight-bold">Prenumele Studentului</th>
+                        <th scope="col" class="font-weight-bold">Denumire Cursului</th>
+                        <th scope="col" class="font-weight-bold">Data si Intervalul Orar</th>
+                        <th scope="col" class="font-weight-bold">Prezent/Absent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PrezentaCurs prezentaCurenta in prezenteStudent.PrezenteCursuri)
+                    {
+                        <tr>
+                            <td>@prezentaCurenta.Student.Nume</td>
+                            <td>@prezentaCurenta.Student.Prenume</td>
+                            <td>@prezentaCurenta.Curs.Denumire</td>
+                            <td>@prezentaCurenta.Data.ToString("d MMMM yyyy 'la ora' HH:mm")</td>
+                            <td class="font-weight-bold">@((prezentaCurenta.Prezent ? "Prezent" : "Absent"))</td>
+                        </tr>
+                    }
+                </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+       <div class="container mt-2 text-center">
+           <div class="row justify-content-center">
+               <div class="col-md-6">
+                   <div class="alert alert-primary" role="alert">
+                       <p class="fs-3 text-center text-primary">Deocamdata nu exista o situatie a prezentelor la cursuri!</p>
+                   </div>
+               </div>
+           </div>
+        </div>
+    }
+    
+    <hr class="my-4">
+
+    @if (prezenteStudent.PrezenteLaboratoare.Count > 0)
+    {
+        <div class="container mt-2 text-center">
+            <h2>Prezența laboratoare:</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Nume</th>
+                        <th scope="col" class="font-weight-bold">Prenume</th>
+                        <th scope="col" class="font-weight-bold">Denumire Laborator</th>
+                        <th scope="col" class="font-weight-bold">Data</th>
+                        <th scope="col" class="font-weight-bold">Prezent/Absent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PrezentaLaborator prezentaCurenta in prezenteStudent.PrezenteLaboratoare)
+                    {
+                        <tr>
+                            <td>@prezentaCurenta.Student.Nume</td>
+                            <td>@prezentaCurenta.Student.Prenume</td>
+                            <td>@prezentaCurenta.Laborator.Denumire</td>
+                            <td>@prezentaCurenta.Data.ToString("d MMMM yyyy 'la ora' HH:mm")</td>
+                            <td class="font-weight-bold">@((prezentaCurenta.Prezent ? "Prezent" : "Absent"))</td>
+                        </tr>
+                    }
+                </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+       <div class="container mt-2 text-center">
+           <div class="row justify-content-center">
+               <div class="col-md-6">
+                   <div class="alert alert-primary" role="alert">
+                       <p class="fs-3 text-center text-primary">Deocamdata nu exista o situatie a prezentelor la laboratoare!</p>
+                   </div>
+               </div>
+           </div>
+        </div>
+    }
+}
+else
+{
+    <div class="container mt-5 text-center">
+        <h1>Utilizatorul nu este autentificat!</h1>
+    </div>
+}
