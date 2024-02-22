@@ -1,0 +1,71 @@
+﻿@using ProiectPrezente.Models.Users
+@model List<User>
+
+@{
+    ViewData["Title"] = "ManageStudents";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center">
+    <img class="w-25" src="https://img.freepik.com/premium-vector/info-symbol-laptop-web-site-information-center-online-customer-support-useful-information_501813-1004.jpg" />
+    <p class="text-center fst-italic text-secondary fs-5 w-50">
+        Poți examina detaliile referitoare la studenți mai jos.
+        Pentru a efectua modificări, apasă pe opțiunea "Modifică".
+        Dacă dorești să ștergi un student, selectează "Șterge".
+        Pentru a vizualiza situația școlară a unui student, apasă pe "Vizualizează Situație Școlară".
+    </p>
+    <input id ="filterInput" class="form-control form-control-lg w-75" type="text" placeholder="Filtrează studenții" aria-label=".form-control-lg example">
+    <table class="table table-striped table-hover shadow table-bordered text-center mt-5 rounded">
+        <thead>
+            <tr class="fs-4">
+                <th scope="col">Nume de Utilizator</th>
+                <th scope="col">Nume</th>
+                <th scope="col">Prenume</th>
+                <th scope="col">Sex</th>
+                <th scope="col">Numar de Telefon</th>
+                <th scope="col">Email</th>
+                <th scope="col">Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (User currentUser in Model)
+            {
+                <tr class="text-secondary fst-italic fs-5">
+                    <td scope="row">@currentUser.Username</td>
+                    <td>@currentUser.UserDetails.FirstName</td>
+                    <td>@currentUser.UserDetails.LastName</td>
+                    <td>@currentUser.UserDetails.Gender</td>
+                    <td>@currentUser.UserDetails.PhoneNumber</td>
+                    <td>@currentUser.UserDetails.Email</td>
+                    <td>
+                        <a href='@Url.Action(action: "DisplayCoursesAndAttendances", controller: "Admin", values: new { studentID = currentUser.UserID })'
+                           class="btn btn-warning">
+                            Vizualizează Situație Școlară
+                        </a>
+                        <a href='@Url.Action(action: "ModifyStudent", controller: "Admin", values: new { studentID = currentUser.UserID })' class="btn btn-primary">
+                            Modifică
+                        </a>
+                        <a href='@Url.Action(action: "DeleteStudent", controller: "Admin", values: new { studentID = currentUser.UserID })' class="btn btn-danger">
+                            Șterge
+                        </a>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td colspan="7"><a href="/Admin/CreateStudent" class="btn btn-success shadow fs-4 m-2">Adaugă Student</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#filterInput').on('input', function () {
+            let filterValue = $(this).val().toLowerCase();
+            $('tbody tr').hide().filter(function () {
+                return $(this).text().toLowerCase().includes(filterValue);
+            }).show();
+            $('tbody tr:last').show();
+        });
+    });
+</script>

@@ -1,0 +1,46 @@
+﻿@{
+    // Setarea titlului și aspectului paginii
+    ViewData["Title"] = "Contact";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Container pentru conținutul paginii -->
+<div class="container text-center" style="height: calc(100vh - 151px)">
+    <!-- Imagine ilustrativă pentru pagina de contact -->
+    <div class="container">
+        <img src="~/Images/contact-us-illustration.jpeg" class="img-fluid" />
+    </div>
+    
+
+    <!-- Container fluid cu aliniere și ajustare a conținutului -->
+    <div class="container-fluid">
+        <!-- Rând cu două coloane: prima coloană pentru text și a doua pentru formularul de contact -->
+        <div class="row align-items-center">
+            <!-- Prima coloană: Text informativ despre contact -->
+            <div class="col-sm-12 col-md-6">
+                <h1>Contactează-ne!</h1>
+                <p class="fst-italic">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+            </div>
+
+            <!-- A doua coloană: Formularul de contact -->
+            <div class="col">
+                <!-- Input pentru nume -->
+                <input type="text" class="form-control" id="nameInput" placeholder="Numele tău">
+
+                <!-- Input pentru adresă de email -->
+                <input type="email" class="form-control mt-4" id="emailInput" placeholder="Adresa ta de Mail">
+
+                <!-- Textarea pentru mesajul de contact -->
+                <textarea class="form-control mt-4" id="textInput" placeholder="Lasă-ne un mesaj :)"></textarea>
+
+                <!-- Buton pentru trimiterea formularului de contact -->
+                <button class="btn-danger fs-4 mt-4 ps-4 pe-4 pt-2 pb-2 rounded-3 shadow">Contactează-ne</button>
+            </div>
+        </div>
+    </div>
+</div>

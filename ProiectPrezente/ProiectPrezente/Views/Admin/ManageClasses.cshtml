@@ -1,0 +1,324 @@
+﻿@using ProiectPrezente.Models.Classes
+@using ProiectPrezente.Models.Users
+@model ManageClassesViewModel
+
+@{
+    ViewData["Title"] = "ManageClasses";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@functions {
+    public string ClassTypeInRomanian(ClassType classType)
+    {
+        return classType == ClassType.COURSE ? "Curs" : "Laborator";
+    }
+}
+
+<!--
+    Modalul pentru adăugarea unui profesor la un curs.
+    Utilizeazăm Bootstrap pentru aspect și interacțiune modală.
+-->
+<div class="modal fade" id="addTeacherModal" tabindex="-1" aria-labelledby="addTeacherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addTeacherModalLabel">Adaugă profesorul la curs!</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <p id="ClassID" hidden></p>
+            <div class="modal-body text-center">
+                <select id="modalClassSelect" class="form-select form-select-lg" aria-label="Default select example">
+                    <option selected>Profesori</option>
+                    @foreach (User currentProfessor in Model.Professors)
+                    {
+                        <option value="@currentProfessor.UserID" class="text-capitalize">
+                            Profesor @currentProfessor.UserDetails.FirstName @currentProfessor.UserDetails.LastName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="enrollStudentButton" type="button" class="btn btn-success fs-5">Adaugă profesorul</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+    Modalul pentru adăugarea unui curs sau laborator.
+-->
+<div class="modal fade" id="addCourseOrLaboratoryModal" tabindex="-1" aria-labelledby="addCourseOrLaboratoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modifyClassNameModal">Modifică denumirea laboratorului / cursului</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <p id="ClassID" hidden></p>
+            <div class="modal-body text-center">
+                <p class="fs-5 text-secondary fst-italic">Alege tipul clasei (curs sau laborator) de mai jos:</p>
+                <div class="input-group mb-3">
+                    <label class="input-group-text fs-5" for="classTypeSelect">Tipul clasei</label>
+                    <select class="form-select fs-5" id="classTypeSelect">
+                        <option value="@ClassType.COURSE" class="text-capitalize">
+                            @ClassTypeInRomanian(ClassType.COURSE)
+                        </option>
+                        <option value="@ClassType.LABORATORY" class="text-capitalize">
+                            @ClassTypeInRomanian(ClassType.LABORATORY)
+                        </option>
+                    </select>
+                </div>
+                <p class="fs-5 text-secondary fst-italic">Introdu denumirea cursului / laboratorului</p>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="classNameInput" placeholder="Denumirea cursului/laboratorului">
+                    <label for="classNameInput">Denumirea</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="addClassButton" type="button" class="btn btn-success fs-5">Adaugă clasa/laboratorul</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+    Modalul pentru modificarea numelui unui curs sau laborator.
+-->
+<div class="modal fade" id="modifyClassModal" tabindex="-1" aria-labelledby="modifyClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modifyClassModalLabel">Modifică denumirea cursului</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <p id="ClassID" hidden></p>
+            <div class="modal-body d-flex justify-content-center align-items-center">
+                <img class="img-fluid" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOMAAADeCAMAAAD4tEcNAAAAgVBMVEX///8AAADOzs7e3t6vr68LCwscHByoqKiampr39/fy8vLm5uagoKB9fX29vb0pKSnV1dXBwcHIyMhcXFwXFxeMjIzX19fu7u63t7eCgoIkJCSJiYlOTk6SkpJ6eno2NjY+Pj5gYGBra2sxMTFUVFRJSUldXV1ubm4RERE1NTU9PT1i9NDlAAAInElEQVR4nO2daXfbLBCF5X3N4qa1szm107hJ+/9/4PtKtoUDiIGBy9KT+y0xSDxnhEAwM1RVoZot+otZ6kZANTn0aj1PUjcEpvue0Cp1YzB66l1qmbo5CF31ev865ENPVtaQnPeibEUE5KY/3L7c7X7dPI58xXlf6BBDQs5X2zftLZgKhhgKcj3dheTjIap9MRzkYvsYGDCoFQNA3oe2IADRC3I2BQD2etehEfmQsy2EMLwV+ZATDCHCikzI/k1ZiAzIFxAhB9G2LW6QtyhCnBVdIX/khOjyRFlDzp5zQrS3Yi1LyAWIr8dCdH25W0H2IXSNGIhV9ep4EwvIe/oqXLEQq2rveBsScghgO4mJGBwyR8TAkHkiBoX8BmA7yQuxqn473q4TcgCha+SJGMyScwDbSd6IVXXneEs9JOJ7/6h7d6Srb/J/9o431UF2rwj5ioH4f2P68v9cLanu+ODeNxwr1vUUyL3jjWXIWXC0s3hWrBXakq6zQmtxrVgrrCVhTyrfirW8LXn5Qv8ICibkY8VaCqTrZGDR1lwGxLqUnxVr+Vry7lzP7YUzOrxvlxMbKWMcLeWr3xdycKr2RBc96/dwId80pDSDtCfk9FjJ2oyj6RwJ2LF2c+sF+XasY7kK9zHEAnZOtbws+XisYlf4B5qwewVOsaTDZu+oqWC18nUD7YaNDBNmD0v+acr/sij5Aic0fxPwLflel15bFJwmRvSwZDNEWyy1w182Fl92XEs2I8GILBbBy8dihOYNIc2bkl4Wv8oCkWfJ48hBPiQ/M0FkWXLTlBvbFcsAkWHJ44BHblLhO6PDbNkR8jSmUyvjj3BEp/1cJ8jztIUaOeCOvg5WdIRsZ2Z/zJccoxGdd+XXtpAtIvVZhfZKZzgeWFpSzK+pLQ7w9yLLj8sK8uITYmW+3G8sItN9xALy8iuJ+K7CTlTZ3ngKpOyIMrj8kZjlQD8aPZyACMhPiNW7+VpIRC+fSiPkoPsnVbtcETVDiCCREIk1AOAXh7dnbCek8sN343W2+SJ2Qir/Jj6QYfPxIB7cWkilo1LLjqihI5ALtwJ50FgxEWMwP3yFSIeYhDFgqIGWKQPGoNEUNpDxGQMHjFhARmcMHhNDQ8ZmBIT9kJCRGSF78hRkXEaQ2wEBGZUR5Vmhm9wkYoQh9sy+FREZcYjKvl0qxmSI8RjTIUZjTIgYizElYiRGVECsFWIcxqRWjMOIs6Kdz2EExsRWjMGYti9GYUxuRTxj6r4YgTEDK6IZc7AimDH96wbOmIcVoYyZWBHJmIsVgYz5IMIYbZybIyHCGEEJlDiIMMa/+SCiGFHh2xxEFCMo6QcLEcVIuP1ERUQx0rEG8RBBjJCRg4sIYhS7jMNgCdzYiCDGQ3uF2ZyMO0AjYhiFc/Ph/2EkCKQHIobxur1A7ag1N/urwRExjCLWoHFB9If0QsQwCqbj376QfogQRuGHf44MnXlBeiJCGMViXJtJwseS7lE0UlJwBKMYOUTkBN+S7lac3+AZ2+p/L2/MhGRYcfwBZxQhI5+imHmQDCuO5QAqAKOI8v/sG8SBZFjxUQkSAzCKXObSD+4zHoYV67vDGUXQ6KvSAEdL8qwYgVEsOqrJc9wsyUXEM4r4Lk0gs4sl2Yh4xrbyL92v9pB8RDijSP6lD4CxhfRAhDOKQLyOnRe7PumDCGcUaxtdJWws6YWIZhQjx76zDG1JP0Q048SmLmVJT0Q0o8igYQqBNUMyED+v/oEZ26rm/BAmSG9EMKNIVPNkLtjdJ/0RwYwiMQU1nZ53ZJgMgAhmFKG/ZFH94+qeOFlFxDJu2pp3dGGdJUNYEcwoEtXY5PmYK6dmBbEimHHf1rRKniDvxIaxIpixrfhBFp1dK9mJA1kRyyhGjgdzwcVEk3shGCKUUTismEaO9fan7l7hEKGMou2dRfpdSVACIiIZxcjxpm+U2gU9EKvuHWogo3hNakYObRf0QOy2IpRRPIZy5pOBvgu2YqS/NvkZABk7umOfyK52WLpnIpobXSmAjG21iyWA2wezq87dkJUVzByejmMUW6vn76oB4f34zk7Ql4pRTFabVcfN0tgHR0+OHtNZMIr9qpvbvvkY3t1UfisVwngwX6vV29A/22kqRivA12vOCd65MFocHPXg0wVzYLw2X+rP1iqfT96MpnHiMAmccDARY+d8e38fPvlnIkZtNr7dEyYPbyJGpfLbtB/kHapTDoy7qTndi68SMbYzt5uHFTj7bjLG5gt59Io9buesVPOczWoVha9WKsaY+mL8YvxizEdfjF+MX4z5yJyiPkJcQASZjwCQTjkqlNEcC3z4XLhQRvPpMZIje6GM5mZfuRTOlZE4sErygC6TkUh4Im1nlsm4Nzdb8rgokpE6zEnaTymSkcqUIRUvkpE4d+xZKl4iI3VipeweXCIjtdEpL80XyEhskKlxXgUyUohKnFd5jN3+aCcp53EXx0idyalJrF8aI30K8HelTmGMNk4HSqWyGGkr6g66KIqRHDV62ujZkhivzI09SuM6Ww7jrfn4v7M02/OlMG4sM9bpQtnKYFxQpzi30u3SF8C4mBh9KD9JG1dirjJdDFJqvV4tX5xSQ2g9Kl0ukL/0KQlStyqs9A976lYFVUcIRepmhZS8jvMvMna5cKduV0B1DnSpGxZO3bkzIAlvU8gQOauEPZcqg6seKo94bJmCC60nu3nLeCA34HzUBDKHeNuskGSvFyMiuZVXgsi8GXf0NTKXko5Qkc1aV9YiHtRGqdvoqSlNiDwUJoYsw4ACJYJPobFtIMI3+lqZyqYrnlTqXMcpXM2chCFTORixFur0G6B+OsesbeiLZqVHRpqWalPSy3XMSGHSaJ+65bZ69jg+AHRcU2D98AvNm5kd0dPr+1WA/ALzbb5LWPulZ4oPofX2kBnnePc6vQ7Gd9Z8se5nodv1Yu4fmv4f76OiNua/yTgAAAAASUVORK5CYII=" />
+                <div class="container-fluid">
+                    <p class="fs-4 fst-italic text-secondary text-center">Introdu noua denumire a cursului sau laboratorului selectat</p>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control fs-5" id="newClassNameInput" placeholder="name@example.com">
+                        <label for="newClassNameInput">Noua denumire</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-column align-items-center justify-content-center">
+                <p class="fs-4 text-secondary fst-italic text-center">Apasă pe butonul de mai jos pentru a confirma modificarea</p>
+                <button type="button" id="modifyClassButton" class="btn btn-success fs-4">Modifică denumirea clasei / laboratorului</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+    Containerul principal care afișează informațiile despre clase.
+-->
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center gap-5">
+    <img src="https://img.freepik.com/free-vector/flat-background-world-teacher-s-day-celebration_23-2150736746.jpg" class="img-fluid w-25" />
+    <p class="text-center text-secondary fs-4 fst-italic w-75">
+        Mai jos găsești informații despre clasele (cursurile și laboratoarele) stocate în baza de date, inclusiv tipul lor,
+        denumirea și profesorul responsabil. Ai posibilitatea să adaugi clase noi, să modifici cele existente și să schimbi
+        profesorii aferenți acestora.
+    </p>
+
+    <!-- Input pentru filtrarea claselor -->
+    <input id="filterInput"
+           class="form-control form-control-lg w-75 shadow"
+           type="text"
+           placeholder="Filtrează clasele"
+           aria-label=".form-control-lg example">
+
+    <!-- Tabelul care afișează informațiile despre clase -->
+    <table class="table table-borderless shadow rounded-3 mt-3">
+        <thead class="" style="background-color: #5652cc;">
+            <!-- Rândul pentru antetele tabelului -->
+            <tr class="text-center text-white fs-4 fst-italic">
+                <th class="fw-normal" scope="col">Tip</th>
+                <th class="fw-normal" scope="col">Denumire</th>
+                <th class="fw-normal" scope="col">Profesori</th>
+                <th class="fw-normal" scope="col">Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Verificare dacă există clase sau nu -->
+            @if (Model.Classes.Count == 0)
+            {
+                <!-- Rând pentru cazul în care nu există clase -->
+                <tr>
+                    <td class="text-center text-danger fst-italic fs-4" colspan="3">Deocamdată <b>NU</b> nu există clase create!</td>
+                </tr>
+            }
+            else
+            {
+                <!-- Parcurgerea claselor și afișarea informațiilor despre fiecare -->
+                @foreach (Class currentClass in Model.Classes)
+                {
+                    <!-- Verificare dacă există profesori asignați clasei -->
+                    bool existaProfesori = currentClass.Teachers.Count == 0;
+                    <!-- Rândul pentru fiecare clasă -->
+                    <tr class="fs-5 text-center fst-italic border-1">
+                        <td>
+                            @ClassTypeInRomanian(currentClass.Type)
+                        </td>
+                        <td class="text-capitalize">
+                            @currentClass.Name.ToLower()
+                        </td>
+                        @if (existaProfesori)
+                        {
+                            <td class="text-danger fs-5">
+                                <b>Nu</b> există niciun profesor asignat @(ClassTypeInRomanian(currentClass.Type).ToLower())ului curent
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <!-- Parcurgere și afișare profesori pentru clasă -->
+                                @foreach (ClassTeacher currentTeacher in currentClass.Teachers)
+                                {
+                                    <!-- Buton pentru ștergerea profesorului din clasă -->
+                                    <a class="btn btn-danger fs-5"
+                                       href='@Url.Action(
+                                            action: "DeleteClassTeacher",
+                                            controller: "Admin",
+                                            values: new { classID = currentClass.ClassID, teacherID = currentTeacher.ProfessorID }
+                                         )'>
+                                        prof. @currentTeacher.Professor.UserDetails.FirstName @currentTeacher.Professor.UserDetails.LastName
+                                    </a>
+                                }
+                            </td>
+                        }
+                        <!-- Celulă pentru acțiunile disponibile pentru clasă -->
+                        <td>
+                            <!-- Buton pentru adăugarea unui profesor la clasă -->
+                            <button class="btn btn-warning shadow rounded-3 fs-5"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addTeacherModal"
+                                    data-classid="@currentClass.ClassID">
+                                Adaugă Profesor
+                            </button>
+                            <!-- Buton pentru modificarea numelui clasei -->
+                            <button class="btn btn-warning shadow rounded-3 fs-5"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modifyClassModal"
+                                    data-classid="@currentClass.ClassID"
+                                    data-originalclassname="@currentClass.Name">
+                                Modifică Clasa
+                            </button>
+                            <!-- Buton pentru ștergerea clasei -->
+                            <a class="btn btn-danger shadow rounded-3 fs-5"
+                               href='@Url.Action(
+                                     action: "DeleteClass",
+                                     controller: "Admin",
+                                     values: new { classID = currentClass.ClassID }
+                                     )'>
+                                Șterge Clasa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            <!-- Rând pentru adăugarea unei noi clase -->
+            <tr class="text-center">
+                <td colspan="4">
+                    <button class="btn btn-success fs-5 rounded shadow" data-bs-toggle="modal" , data-bs-target="#addCourseOrLaboratoryModal">
+                        Adaugă un curs sau laborator
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script>
+        // Începem execuția funcțiilor doar atunci când DOM-ul este încărcat complet 100% (ca să evităm erori)
+        $(document).ready(function () {
+            // Evenimentul care se declanșează atunci când se tastează în câmpul de filtrare
+            $('#filterInput').on('input', function () {
+                // Obținem valoarea filtrului și o convertim în litere mici pentru comparare
+                let filterValue = $(this).val().toLowerCase();
+                // Ascundem toate rândurile și le afișăm doar pe cele care corespund filtrului
+                $('tbody tr').hide().filter(function () {
+                    return $(this).text().toLowerCase().includes(filterValue);
+                }).show();
+                // Afișează ultimul rând din corpul tabelului (pentru a putea adăuga clase chiar și când filtrele sunt aplicate)
+                $('tbody tr:last').show();
+            });
+        });
+
+        // Evenimentul care se declanșează când se deschide modalul de adăugare profesor
+        $('#addTeacherModal').on('show.bs.modal', function (event) {
+            // Obținem butonul care a deschis modalul și extragem ID-ul clasei asociate
+            let showModalButton = $(event.relatedTarget);
+            let classID = showModalButton.data('classid');
+            // Setăm ID-ul clasei în modal
+            $('#ClassID').text(classID);
+        });
+        // Evenimentul care se declanșează când se dă clic pe butonul de înscriere a profesorului
+        $('#enrollStudentButton').on('click', function () {
+            // Obține ID-ul clasei și ID-ul profesorului selectat pentru înscriere
+            let classID = $(this).data('classid');
+            let selectedProfessorID = $('#modalClassSelect').val();
+            let classIDValue = $("#ClassID").text();
+            // Trimite o cerere AJAX pentru adăugarea profesorului la clasă
+            $.ajax({
+                url: '/Admin/AddProfessorToClass',
+                method: 'POST',
+                data: { classID: classIDValue, professorID: selectedProfessorID },
+                success: function (response) {
+                    window.location.href = "http://localhost:5012/Admin/ManageClasses"
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            });
+        });
+
+        // Evenimentul care se declanșează când se dă clic pe butonul de adăugare a clasei
+        $('#addClassButton').on('click', function () {
+            // Obținem tipul și numele clasei din input-uri
+            let classType = $('#classTypeSelect').val();
+            let className = $('#classNameInput').val();
+            // Trimite o cerere AJAX pentru adăugarea unei noi clase
+            $.ajax({
+                url: '/Admin/AddClass',
+                method: 'POST',
+                data: { classType: classType, className: className },
+                success: function (response) {
+                    window.location.href = "http://localhost:5012/Admin/ManageClasses"
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            });
+        });
+
+        // Evenimentul care se declanșează când se deschide modalul de modificare a clasei
+        $('#modifyClassModal').on('show.bs.modal', function (event) {
+            // Aceeași logică ca și mai sus
+            let showModalButton = $(event.relatedTarget);
+            let classID = showModalButton.data('classid');
+            let originalName = showModalButton.data('originalclassname');
+            $('#newClassNameInput').val(originalName);
+            $("#ClassID").text(classID);
+        });
+        // Evenimentul care se declanșează când se dă clic pe butonul de modificare a clasei
+        $('#modifyClassButton').on('click', function () {
+            // Obținem noul nume al clasei și ID-ul
+            let newClassName = $('#newClassNameInput').val();
+            let classIDValue = $("#ClassID").text();
+            // La fel ca și mai sus, trimitem o cerere AJAX pentru modificarea numelui clasei
+            $.ajax({
+                url: '/Admin/ModifyClassName',
+                method: 'POST',
+                data: { classID: classIDValue, newClassName: newClassName },
+                success: function (response) {
+                    window.location.href = "http://localhost:5012/Admin/ManageClasses"
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            });
+        });
+    </script>
+}

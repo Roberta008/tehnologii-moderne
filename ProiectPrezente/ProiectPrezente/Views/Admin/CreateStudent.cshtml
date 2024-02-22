@@ -1,0 +1,84 @@
+﻿@using ProiectPrezente.Models.Users
+@model User
+
+@{
+    ViewData["Title"] = "CreateStudent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var defaultModel = new User { UserType = UserType.Student };
+    ViewData.Model = defaultModel;
+}
+
+@* @functions
+{
+    private SelectList GetSelectList()
+    {
+        // Aici puteți să vă construiți lista de elemente pentru dropdown
+        // De exemplu, puteți utiliza o listă de SelectListItem
+        var items = new List<SelectListItem>
+        {
+            new SelectListItem { Value = ((int)UserType.Admin).ToString(), Text = UserType.Admin.ToString() },
+            new SelectListItem { Value = ((int)UserType.Student).ToString(), Text = UserType.Student.ToString() },
+            new SelectListItem { Value = ((int)UserType.Professor).ToString(), Text = UserType.Professor.ToString() },
+        };
+
+        return new SelectList(items, "Value", "Text");
+    }
+} *@
+
+@* <script>
+    $(document).ready(function () {
+        $('#select2').select2({ theme: "bootstrap" });
+    });
+</script> *@
+
+@* <style>
+    /* Add padding to Select2 dropdown */
+    .select2-container .select2-selection--single {
+        padding-bottom: 2.5rem;
+        padding-top: 1rem;
+    }
+</style> *@
+
+<div class="d-flex align-items-center" style="height: calc(100vh - 151px)">
+    <div class="container shadow pt-3 pb-3 pe-5 ps-5 rounded">
+        <h1 class="text-center mb-3">Creează Studentul</h1>
+        @using (Html.BeginForm(actionName: "CreateStudent", controllerName: "Admin", method: FormMethod.Post))
+        {
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.Username, htmlAttributes: new { @class = "form-control", placeholder = "Nume de Utilizator" })
+                @Html.LabelFor(viewModel => viewModel.Username)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.PasswordFor(viewModel => viewModel.Password, htmlAttributes: new { @class = "form-control", placeholder = "Parolă" })
+                @Html.LabelFor(viewModel => viewModel.Password)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.FirstName, htmlAttributes: new { @class = "form-control", placeholder = "Nume" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.FirstName)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.LastName, htmlAttributes: new { @class = "form-control", placeholder = "Prenume" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.LastName)
+            </div>
+            <div class="d-flex mb-3 gap-3">
+                <div class="form-check">
+                    @Html.RadioButtonFor(viewModel => viewModel.UserDetails.Gender, "Femeie", htmlAttributes: new { @class = "form-check-input" }) Femeie
+                </div>
+                <div class="form-check">
+                    @Html.RadioButtonFor(m => m.UserDetails.Gender, "Barbat", htmlAttributes: new { @class = "form-check-input" }) Bărbat
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.Email, htmlAttributes: new { @class = "form-control", placeholder = "E-Mail" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.Email)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.PhoneNumber, htmlAttributes: new { @class = "form-control", placeholder = "Număr de Telefon" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.PhoneNumber)
+            </div>
+            <div class="text-center">
+                <button class="btn btn-success fs-4 rounded-3 shadow">Creează Studentul</button>
+            </div>
+        }
+    </div>
+</div>

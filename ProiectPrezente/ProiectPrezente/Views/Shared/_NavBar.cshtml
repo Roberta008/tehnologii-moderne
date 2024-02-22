@@ -1,0 +1,81 @@
+﻿@using ProiectPrezentaOnline.Extensions
+@using ProiectPrezente.Models.Users
+
+@{
+    // Extrage studentul autentificat din sesiune
+    User? authenticatedStudent = Context.Session.GetObject<User>("authenticatedUser");
+    string aspControllerName = (authenticatedStudent == null)
+        ? "Home"
+        : (authenticatedStudent.UserType == UserType.Admin)
+            ? "Admin"
+            : (authenticatedStudent.UserType == UserType.Admin)
+                ? "Professor"
+                : "Student";
+    bool displayContactLink = (authenticatedStudent != null && authenticatedStudent.UserType != UserType.Admin) || authenticatedStudent == null;
+}
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3 shadow" style="background-color: #5652cc">
+        <div class="container-fluid align-items-center">
+            <a class="navbar-brand fs-3 ps-5" asp-area="" asp-controller="@aspControllerName" asp-action="Index">
+                <img src="~/Images/website-logo.png" width="45" height="45" />
+                Students Tracker
+            </a>
+
+            <!-- Butonul pentru meniul responsiv -->
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Meniul de navigație -->
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between pe-5">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Elementul pentru pagina de acasă -->
+                    <li class="nav-item fs-5">
+                        <a class="nav-link text-white" asp-area="" asp-controller="@aspControllerName" asp-action="Index">Acasa</a>
+                    </li>
+                    @if (displayContactLink)
+                    {
+                        <!-- Elementul pentru pagina de contact -->
+                        <li class="nav-item fs-5">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>
+                    }
+                    <!-- Elemente pentru autentificare și deconectare -->
+                    @if (authenticatedStudent == null)
+                    {
+                        <!-- Element pentru autentificare, vizibil doar dacă nu este nimeni autentificat -->
+                        <li class="nav-item fs-5">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Authentication" asp-action="Index">Autentificare</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Element pentru deconectare, vizibil doar dacă cineva este autentificat -->
+                        <li class="nav-item fs-5">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Authentication" asp-action="Disconnect">Deconectare</a>
+                        </li>
+                        if (authenticatedStudent.UserType == UserType.Admin)
+                        {
+                            <li class="nav-item fs-5">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Admin" asp-action="ManageStudents">Gestionează studentii</a>
+                            </li>
+                            <li class="nav-item fs-5">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Admin" asp-action="ManageClasses">Gestionează cursurile și laboratoarele</a>
+                            </li>
+                            <li class="nav-item fs-5">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Admin" asp-action="ManageProfessors">Gestionează profesorii</a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

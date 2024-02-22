@@ -1,0 +1,138 @@
+﻿@using ProiectPrezentaOnline.Extensions
+@using ProiectPrezente.Models.Classes
+@using ProiectPrezente.Models.Users
+
+@model StudentsIndexViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User authenticatedStudent = Context.Session.GetObject<User>("authenticatedUser");
+    int totalPrezente = Model.UserAttendances.Where(currentAttendance => currentAttendance.IsPresent).Count();
+    int totalAbsente = Model.UserAttendances.Where(currentAttendance => !currentAttendance.IsPresent).Count();
+}
+
+@functions {
+    public string ClassTypeInRomanian(ClassType classType)
+    {
+        return classType == ClassType.COURSE ? "Curs" : "Laborator";
+    }
+
+    public string PresentOrAbsent(bool wasPresent)
+    {
+        return wasPresent ? "Prezent" : "Absent";
+    }
+
+    public string GetTimeFromDateTime(DateTime dateTime)
+    {
+        DateTime newMinDateTime;
+        DateTime newMaxDateTime;
+        int minutesFromTime = dateTime.Minute;
+        newMinDateTime = dateTime.AddMinutes(value: minutesFromTime >= 30 ? -(minutesFromTime - 30) : -(minutesFromTime));
+        newMaxDateTime = newMinDateTime.AddMinutes(value: 90);
+        string minIntervalValue = newMinDateTime.ToString(format: "HH:mm");
+        string maxIntervalValue = newMaxDateTime.ToString(format: "HH:mm");
+        return minIntervalValue + " - " + maxIntervalValue;
+    }
+
+    public string FormatDateTime(DateTime dateTime)
+    {
+        return dateTime.ToString(format: "dd MMMM yyyy");
+    }
+}
+
+<div class="container-fluid d-flex align-items-center justify-content-center" style="height: calc(100vh - 151px)">
+    <img class="img-fluid w-25" src="https://cdni.iconscout.com/illustration/premium/thumb/concept-of-user-profile-1886533-1597944.png" />
+    <div>
+        <h1 class="text-center fst-italic">
+            Buna
+            <span class="text-primary">@authenticatedStudent.UserDetails.FirstName @authenticatedStudent.UserDetails.LastName</span>
+            , ne bucuram sa te revedem!
+            <span class="fst-normal">&#x1F604;</span>
+        </h1>
+        <p class="text-center fs-4 mt-3 fst-italic text-secondary">
+            Mai jos poți vedea situația școlară, adică cursurile și laboratoarele la care ești înscris,
+            precum și prezențele sau absențele tale la acestea.
+        </p>
+        <p class="fs-4 text-center fst-italic text-secondary">
+            Pe scurt ești înscris/ă la un total de
+            <span class="text-primary fw-bold">@Model.EnrolledClasses.Count</span>
+            cursuri și laboratoare, ai
+            <span class="text-primary fw-bold">@totalPrezente</span>
+            @(totalPrezente == 1 ? "prezență" : "prezențe") și
+            <span class="text-primary fw-bold">@totalAbsente</span>
+            @(totalAbsente == 1 ? "absență" : "absențe")
+            @if (Model.EnrolledClasses.Count == 0 && totalAbsente == 0 && totalPrezente == 0)
+            {
+                <span class="fst-normal fs-1">
+                    &#128577;
+                </span>
+            }
+            else
+            {
+                <span class="fst-normal fs-1">
+                    &#128578;
+                </span>
+            }
+        </p>
+        <table class="table table-borderless shadow rounded-3">
+            <thead class="" style="background-color: #5652cc;">
+                <tr class="text-center text-white fs-4 fst-italic">
+                    <th class="fw-normal" scope="col">Tip</th>
+                    <th class="fw-normal" scope="col">Denumire</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EnrolledClasses.Count == 0)
+                {
+                    <tr>
+                        <td class="text-center text-danger fst-italic fs-4" colspan="3">Studentul <b>NU</b> este înscris la cursuri sau laboratoare!</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var currentEnrollment in Model.EnrolledClasses)
+                    {
+                        <tr class="fs-5 text-center fst-italic border-1">
+                            <td class="text-capitalize">@ClassTypeInRomanian(currentEnrollment.Class.Type)</td>
+                            <td class="text-capitalize">@currentEnrollment.Class.Name.ToLower()</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <table class="table table-borderless shadow rounded-3 mt-5">
+            <thead class="" style="background-color: #5652cc;">
+                <tr class="text-center text-white fs-4 fst-italic fw-normal">
+                    <th class="fw-normal" scope="col">Data prezenței</th>
+                    <th class="fw-normal" scope="col">Interval orar</th>
+                    <th class="fw-normal" scope="col">Denumire</th>
+                    <th class="fw-normal" scope="col">Prezent sau Absent</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.UserAttendances.Count == 0)
+                {
+                    <tr>
+                        <td class="text-center text-danger fst-italic fs-4" colspan="5">
+                            Studentul <b>NU</b> are prezențe la cursuri sau laboratoare!
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (Attendance currentAttendance in Model.UserAttendances)
+                    {
+                        <tr class="fs-5 text-center fst-italic @(currentAttendance.IsPresent ? "table-success" : "table-danger")">
+                            <td>@FormatDateTime(currentAttendance.Date)</td>
+                            <td>@GetTimeFromDateTime(currentAttendance.Date)</td>
+                            <td class="text-capitalize">@currentAttendance.Class.Name.ToLower()</td>
+                            <td>@PresentOrAbsent(currentAttendance.IsPresent)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

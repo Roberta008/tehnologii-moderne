@@ -1,0 +1,69 @@
+﻿@{
+    // Setarea titlului paginii
+    ViewData["Title"] = "Home Page";
+}
+
+<!-- Container fluid pentru conținutul paginii -->
+<div class="container-fluid p-0">
+
+    <!-- Container cu imagine și text în centrul paginii -->
+    <div class="container" style="max-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content:center">
+        <img src="~/Images/man-thinking-illustration.png" height="250" width="250" />
+        <h3>O soluție eficientă pentru monitorizarea și gestionarea prezenței la oră.</h3>
+    </div>
+
+    <!-- Container pentru secțiunea de carduri cu informații -->
+    <div class="container text-center mt-5">
+        <div class="row g-3">
+
+            <!-- Cardul 1: Monitorizare prezențe în timp real -->
+            <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card shadow align-items-center">
+                    <img src="~/Images/data-monitoring-illustration.jpeg" class="card-img-top" alt="..." />
+                    <div class="card-body">
+                        <h5 class="card-title">Monitorizăm prezențele în timp real</h5>
+                        <p class="card-text">
+                            Cu funcționalitatea noastră avansată de monitorizare a prezențelor în timp real, oferim o soluție
+                            eficientă și transparentă pentru gestionarea participării la ore.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cardul 2: Administrare clase și date elevi -->
+            <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card shadow align-items-center">
+                    <img src="~/Images/system-administration-illustration.jpeg" class="card-img-top" alt="..." />
+                    <div class="card-body">
+                        <h5 class="card-title">Administrarea claselor și a datelor studenților</h5>
+                        <p class="card-text">
+                            Prin intermediul acestei facilități, profesorii și administratorii pot organiza și actualiza cu eficiență datele elevilor,
+                            ține evidența claselor și gestiona informațiile academice esențiale.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cardul 3: Interfață prietenoasă și ușor de utilizat -->
+            <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card shadow align-items-center">
+                    <img src="~/Images/friendly-interface-illustration.jpeg" class="card-img-top" alt="..." />
+                    <div class="card-body">
+                        <h5 class="card-title">Interfață prietenoasă și ușor de utilizat</h5>
+                        <p class="card-text">
+                            Interfața noastră a fost proiectată cu atenție pentru a fi accesibilă și eficientă, facilitând navigarea și utilizarea tuturor
+                            funcționalităților noastre.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container fluid pentru secțiunea de contact -->
+    <div class="container-fluid pt-5 pb-5 align-items-center text-center shadow custom-contact-margin" style="background-color: #5652cc; margin-top: 10rem">
+        <h4 class="h1 text-white">Ai vreo întrebare legată de serviciile noastre?</h4>
+        <p class="fs-4 text-white">Nu ezita să ne contactezi!</p>
+        <a class="btn-danger rounded-3 ps-5 pe-5 pt-2 pb-2 fs-3 text-decoration-none shadow" asp-controller="Home" asp-action="Contact">Contact</a>
+    </div>
+</div>

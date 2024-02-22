@@ -1,0 +1,48 @@
+﻿@using ProiectPrezentaOnline.Extensions
+@using ProiectPrezente.Models.Users
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User authenticatedStudent = Context.Session.GetObject<User>("authenticatedUser");
+}
+
+<div class="container">
+    <h1 class="text-center fst-italic mt-5">Buna, ne bucuram sa te revedem! <span class="fst-normal">&#x1F604;</span></h1>
+    <p class="text-center text-secondary fst-italic fs-4 mt-3">Pentru a utiliza instrumentele de gestionare, accesează una dintre opțiunile enumerate mai jos.</p>
+    <div class="row g-3 mt-2">
+        <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+            <div class="card text-center shadow rounded-3" style="min-height: 10rem;">
+                <img class="card-img-top shadow-sm" src="https://img.freepik.com/free-vector/preparing-test-together-learning-studying-with-friends-effective-revision-revision-timetables-planning-how-revise-exams-concept_335657-825.jpg" alt="Card image cap" height="280">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <h5 class="card-title">Gestionează studenții</h5>
+                    <p class="card-text text-secondary fst-italic">Acest instrument vă permite să adăugați noi studenți, să efectuați modificări asupra celor existenți și să vizualizați starea academică a fiecărui student, inclusiv informații despre absențe, prezențe și alte aspecte relevante.</p>
+                    <a asp-action="ManageStudents" class="btn btn-danger shadow">Gestioneaza acum</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+            <div class="card text-center shadow rounded-3" style="min-height: 10rem;">
+                <img class="card-img-top shadow-sm" src="https://www.shutterstock.com/image-vector/students-study-university-college-lecture-600nw-1881195940.jpg" alt="Card image cap" height="280">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <h5 class="card-title">Gestioneaza cursuri, laboratoare</h5>
+                    <p class="card-text text-secondary fst-italic">Facilitatea de gestionare a cursurilor și laboratoarelor vă oferă posibilitatea să adăugați noi cursuri, să administrați laboratoarele existente și să monitorizați activitățile specifice, contribuind astfel la o gestionare eficientă a resurselor academice.</p>
+                    <a asp-action="ManageClasses" class="btn btn-danger shadow">Gestioneaza acum</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+            <div class="card text-center shadow rounded-3" style="min-height: 10rem;">
+                <img class="card-img-top shadow-sm" src="https://img.freepik.com/premium-vector/assistant-professor-is-exchanging-work-with-professor_701961-7927.jpg" alt="Card image cap">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <h5 class="card-title">Gestionează profesorii</h5>
+                    <p class="card-text text-secondary fst-italic">Funcționalitatea de gestionare a profesorilor vă permite să adăugați noi cadre didactice, să modificați informațiile existente despre aceștia și să monitorizați activitățile academice ale fiecărui profesor, contribuind astfel la o administrare eficientă a personalului didactic.</p>
+                    <a asp-action="ManageProfessors" class="btn btn-danger shadow">Gestioneaza acum</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,58 @@
+﻿@using ProiectPrezente.Models.Users
+@model User
+
+@{
+    // Setează titlul paginii și specifică folosirea layout-ului comun
+    ViewData["Title"] = "Autentificare";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container d-flex flex-column align-items-center justify-content-center" style="height: calc(100vh - 151px);">
+    <!-- Imaginea de autentificare -->
+    <img src="~/Images/authentication-illustration.webp" class="img-fluid" />
+
+    <!-- Mesaj de informare pentru utilizatori -->
+    <p class="text-secondary fst-italic fs-5">Te rugăm să utilizezi credențialele furnizate de către administrator pentru autentificare.</p>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <!-- Mesaj de eroare în cazul în care autentificarea a eșuat -->
+        <p class="text-danger fs-5 fst-italic">@ViewBag.Message</p>
+    }
+    
+
+    <!-- Formularul de autentificare -->
+    <div class="container">
+        @using (Html.BeginForm(actionName: "Login", controllerName: "Authentication", method: FormMethod.Post))
+        {
+            <!-- Câmpul pentru introducerea numelui de utilizator -->
+            <div class="d-flex gap-3 align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#5652cc" class="bi bi-person-fill" viewBox="0 0 16 16">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                </svg>
+                <div class="form-floating w-100">
+                    @Html.TextBoxFor(expression: viewModel => viewModel.Username, htmlAttributes: new { @class = "form-control", placeholder = "Numele de utilizator..." })
+                    @Html.LabelFor(expression: viewModel => viewModel.Username)
+                    @Html.ValidationMessageFor(expression: viewModel => viewModel.Username)
+                </div>
+            </div>
+
+            <!-- Câmpul pentru introducerea parolei -->
+            <div class="d-flex gap-3 mt-3 align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#5652cc" class="bi bi-key-fill" viewBox="0 0 16 16">
+                    <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                </svg>
+                <div class="form-floating w-100">
+                    @Html.PasswordFor(expression: viewModel => viewModel.Password, htmlAttributes: new { @class = "form-control", placeholder = "Parola ta..." })
+                    @Html.LabelFor(expression: viewModel => viewModel.Password)
+                    @Html.ValidationMessageFor(expression: viewModel => viewModel.Password)
+                </div>
+            </div>
+
+            <!-- Butonul pentru autentificare -->
+            <div class="text-center">
+                <button class="btn btn-danger fs-4 rounded-3 shadow mt-3">Autentificare</button>
+            </div>
+        }
+    </div>
+</div>

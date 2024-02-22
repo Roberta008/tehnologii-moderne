@@ -1,0 +1,318 @@
+﻿@using ProiectPrezente.Models.Classes
+@using ProiectPrezente.Models.Users
+@using System.Globalization
+@model CoursesAndAttendancesModel
+
+@{
+    ViewData["Title"] = "DisplayCoursesAndAttendances";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Class> listOfClasses = Model.Classes
+        .Where
+            (
+                predicate: currentClass => Model.User.Enrollments
+                    .FirstOrDefault
+                        (
+                            predicate: currentEnrollment => currentEnrollment.ClassID == currentClass.ClassID
+                        )
+                    == null
+            )
+        .ToList();
+    List<Class> listOfEnrolledClasses = Model.Classes
+    .Where
+        (
+            predicate: currentClass => Model.User.Enrollments
+                .FirstOrDefault
+                    (
+                        predicate: currentEnrollment => currentEnrollment.ClassID == currentClass.ClassID
+                    )
+                != null
+        )
+    .ToList();
+}
+
+@functions
+{
+    public string ClassTypeInRomanian(ClassType classType)
+    {
+        return classType == ClassType.COURSE ? "Curs" : "Laborator";
+    }
+
+    public string PresentOrAbsent(bool wasPresent)
+    {
+        return wasPresent ? "Prezent" : "Absent";
+    }
+
+    public string GetTimeFromDateTime(DateTime dateTime)
+    {
+        DateTime newMinDateTime;
+        DateTime newMaxDateTime;
+        int minutesFromTime = dateTime.Minute;
+        newMinDateTime = dateTime.AddMinutes(value: minutesFromTime >= 30 ? -(minutesFromTime - 30) : -(minutesFromTime));
+        newMaxDateTime = newMinDateTime.AddMinutes(value: 90);
+        string minIntervalValue = newMinDateTime.ToString(format: "HH:mm");
+        string maxIntervalValue = newMaxDateTime.ToString(format: "HH:mm");
+        return minIntervalValue + " - " + maxIntervalValue;
+    }
+
+    public string FormatDateTime(DateTime dateTime)
+    {
+        return dateTime.ToString(format: "dd MMMM yyyy");
+    }
+}
+
+<!-- Modal -->
+<div class="modal fade" id="enrollStudentModal" tabindex="-1" aria-labelledby="enrollStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="enrollStudentModalLabel">Inscrie student la curs!</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="fs-5">
+                    Selectează cursul pentru a-l înregistra pe
+                    <br />
+                    <span class="text-primary">
+                        @Model.User.UserDetails.FirstName @Model.User.UserDetails.LastName
+                    </span>
+                </p>
+                <select id="enrollStudentSelect" class="form-select form-select-lg" aria-label="Default select example">
+                    <option selected>Cursuri și Laboratoare</option>
+                    @foreach (Class currentClass in listOfClasses)
+                    {
+                        <option value="@currentClass.ClassID" class="text-capitalize">@currentClass.Name.ToLower()</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="enrollStudentButton" type="button" class="btn btn-success fs-5">Înscrie studentul</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createAttendanceModal" tabindex="-1" aria-labelledby="createAttendanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createAttendanceModalLabel">Adaugă studentului o prezență</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="fs-5">
+                    Selectează cursul sau laboratorul la care vrei să adaugi prezența studentului
+                    <br />
+                    <span class="text-primary">
+                        @Model.User.UserDetails.FirstName @Model.User.UserDetails.LastName
+                    </span>
+                </p>
+                <select id="modalClassSelect" class="form-select form-select-lg" aria-label="Default select example">
+                    <option selected>Cursuri și Laboratoare</option>
+                    @foreach (Class currentClass in listOfEnrolledClasses)
+                    {
+                        <option value="@currentClass.ClassID" class="text-capitalize">@currentClass.Name.ToLower()</option>
+                    }
+                </select>
+                <p class="fs-5 mt-2">Alege ziua și intervalul orar în care studentul a fost prezent la curs sau laborator:</p>
+                <p class="text-secondary fst-italic fs-5">(dd MMMM yyyy HH:SS)</p>
+                <input type="text" id="modalDatePicker" class="form-control" placeholder="dd MMMM yyyy HH:SS">
+                <p class="fs-5 mt-2">
+                    A fost studentul 
+                    <span class="text-primary">@Model.User.UserDetails.FirstName @Model.User.UserDetails.LastName</span>
+                    prezent la ore?
+                </p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="True">
+                    <label class="form-check-label fs-5" for="inlineRadio1">A fost prezent</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="False">
+                    <label class="form-check-label fs-5" for="inlineRadio2">Nu a fost prezent</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="createAttendanceButton" type="button" class="btn btn-success fs-5">Adaugă prezența</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h1 class="text-center text-dark fst-italic mt-5 mb-3">
+    Situatia universitară a studentului <span class="text-primary">@Model.User.UserDetails.LastName @Model.User.UserDetails.FirstName</span>
+</h1>
+<div class="container-fluid d-flex align-items-center justify-content-center">
+    <div class="container w-50">
+        <img class="img-fluid"
+             src="https://media.istockphoto.com/id/1356346639/vector/time-and-attendance-tracking-system-abstract-concept-vector-illustration.jpg?s=612x612&w=0&k=20&c=v5NA_E6lKJLfo78ucKrNGudvo2V-x2bXgqD-0Oe98JI=" />
+    </div>
+    <div class="container-fluid d-flex flex-column align-items-center me-5">
+        <h2 class="mt-3 fst-italic text-secondary">
+            Acesta este inscris la următoarele <span class="text-primary">cursuri</span> și <span class="text-primary">laboratoare</span>:
+        </h2>
+        <table class="table table-borderless shadow rounded-3 mt-3">
+            <thead class="" style="background-color: #5652cc;">
+                <tr class="text-center text-white fs-4 fst-italic">
+                    <th class="fw-normal" scope="col">Tip</th>
+                    <th class="fw-normal" scope="col">Denumire</th>
+                    <th class="fw-normal" scope="col">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.User.Enrollments.Count == 0)
+                {
+                    <tr>
+                        <td class="text-center text-danger fst-italic fs-4" colspan="3">Studentul <b>NU</b> este înscris la cursuri sau laboratoare!</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var currentEnrollment in Model.User.Enrollments)
+                    {
+                        <tr class="fs-5 text-center fst-italic border-1">
+                            <td class="text-capitalize">@ClassTypeInRomanian(currentEnrollment.Class.Type)</td>
+                            <td class="text-capitalize">@currentEnrollment.Class.Name.ToLower()</td>
+                            <td class="text-capitalize">
+                                <a class="btn btn-danger rounded shadow fs-5 fst-normal"
+                                   href='@Url.Action(
+                                            action: "DeleteEnrollment",
+                                            controller: "Admin",
+                                            values: new { studentID = Model.User.UserID, classID = currentEnrollment.ClassID }
+                                         )'>
+                                    Anulează înscrierea
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                <tr class="text-center">
+                    <td colspan="3">
+                        <button class="btn btn-success fs-5 rounded shadow" data-bs-toggle="modal" , data-bs-target="#enrollStudentModal">
+                            Înscrie studentul la curs
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 class="mt-3 fst-italic text-secondary">Situația prezențelor este următoarea:</h2>
+        <table class="table table-borderless shadow rounded-3 mt-3">
+            <thead class="" style="background-color: #5652cc;">
+                <tr class="text-center text-white fs-4 fst-italic fw-normal">
+                    <th class="fw-normal" scope="col">Data prezenței</th>
+                    <th class="fw-normal" scope="col">Interval orar</th>
+                    <th class="fw-normal" scope="col">Denumire</th>
+                    <th class="fw-normal" scope="col">Prezent sau Absent</th>
+                    <th class="fw-normal" scope="col">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.User.Attendances.Count == 0)
+                {
+                    <tr>
+                        <td class="text-center text-danger fst-italic fs-4" colspan="5">
+                            Studentul <b>NU</b> are prezențe la cursuri sau laboratoare!
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (Attendance currentAttendance in Model.User.Attendances)
+                    {
+                        <tr class="fs-5 text-center fst-italic @(currentAttendance.IsPresent ? "table-success" : "table-danger")">
+                            <td>@FormatDateTime(currentAttendance.Date)</td>
+                            <td>@GetTimeFromDateTime(currentAttendance.Date)</td>
+                            <td class="text-capitalize">@currentAttendance.Class.Name.ToLower()</td>
+                            <td>@PresentOrAbsent(currentAttendance.IsPresent)</td>
+                            <td>
+                                <button class="btn btn-warning fs-5 rounded shadow modifyAttendanceButton"
+                                        value="@currentAttendance.AttendanceID">
+                                    Modifică prezența
+                                </button>
+                                <a class="btn btn-danger rounded shadow fs-5 fst-normal"
+                                   href='@Url.Action(
+                                            action: "DeleteAttendance",
+                                            controller: "Admin",
+                                            values: new { attendanceID = currentAttendance.AttendanceID, studentID = Model.User.UserID }
+                                         )'>
+                                    Șterge prezența
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                <tr class="text-center">
+                    <td colspan="5">
+                        <button class="btn btn-success fs-5 rounded shadow @(Model.User.Enrollments.Count == 0 ? "disabled" : "")"
+                                data-bs-toggle="modal" data-bs-target="#createAttendanceModal">
+                            Adaugă o prezență
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#enrollStudentButton').click(function () {
+            let selectedClassID = $('#enrollStudentSelect').val();
+            window.location.href = `http://localhost:5012/Admin/EnrollStudent?studentID=@Model.User.UserID&classID=${selectedClassID}`;
+        });
+        $('.modifyAttendanceButton').click(function () {
+            let attendanceID = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: '/Admin/ModifyAttendance',
+                data: { attendanceID: attendanceID, studentID: @Model.User.UserID },
+                success: function (response) {
+                    window.location.href = `http://localhost:5012/Admin/DisplayCoursesAndAttendances?studentID=${@Model.User.UserID}`
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        })
+
+        $('#createAttendanceButton').prop('disabled', true);
+        $('#modalClassSelect').change(function () {
+            validateInputs();
+        });
+        $('#modalDatePicker').datetimepicker({
+            dateFormat: 'dd MM yy',
+            timeFormat: 'HH:mm',
+            autoclose: true,
+            monthNames: ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'],
+        });
+        $('#modalDatePicker').on('input', function () {
+            validateInputs();
+        });
+        $('.form-check-input').change(function () {
+            $('.form-check-input').removeClass('checkedRadioButton');
+            $(this).addClass('checkedRadioButton');
+            validateInputs();
+        });
+        function validateInputs() {
+            let selectedClass = $('#modalClassSelect').val();
+            let dateValue = $('#modalDatePicker').val();
+            let checkedRadioButton = $('.form-check-input:checked').val();
+            $('#createAttendanceButton').prop('disabled', !(selectedClass && dateValue && checkedRadioButton));
+        }
+        $('#createAttendanceButton').on('click', function () {
+            let selectedClassID = $('#modalClassSelect').val();
+            let selectedDate = $('#modalDatePicker').val();
+            let wasPresent = $('.checkedRadioButton').val() === 'True';
+            console.log(`selectedClassID = ${selectedClassID} and selectedDate = ${selectedDate} and wasPresent = ${wasPresent}`)
+            $.ajax({
+                type: 'POST',
+                url: '/Admin/CreateAttendance',
+                data: { classID: selectedClassID, studentID: @Model.User.UserID, attendanceDate: selectedDate, wasPresent: wasPresent },
+                success: function (response) {
+                    window.location.href = `http://localhost:5012/Admin/DisplayCoursesAndAttendances?studentID=${@Model.User.UserID}`
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>

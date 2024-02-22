@@ -1,0 +1,56 @@
+﻿@using ProiectPrezente.Models.Users
+@model User
+
+@{
+    ViewData["Title"] = "Modifica Studentul";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex flex-column justify-content-center align-items-center" style="height: calc(100vh - 151px)">
+    @* <p class="text-center mb-3 fs-3 text-secondary">Modifică datele studentului <span class="fs-1" style="color: blueviolet">@Model.Username</span></p> *@
+    <p class="text-center w-75 text-secondary fst-italic fs-5">Acest formular vă permite să actualizați informațiile referitoare la student, inclusiv nume de utilizator, parolă și alte detalii relevante. 
+        Asigurați-vă că furnizați datele corecte ale studentului, iar apoi apăsați butonul "Modifică informațiile studentului" pentru a confirma modificările.
+    </p>
+    <div class="container shadow p-5 rounded d-flex align-items-center justify-content-center">
+        <img class="img-fluid" src="https://cdn1.iconfinder.com/data/icons/mobile-apps-and-services/300/6-512.png" />
+        @using (Html.BeginForm(actionName: "ModifyStudent", controllerName: "Admin", method: FormMethod.Post, htmlAttributes: new { @class = "w-100"}))
+        {
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.Username, htmlAttributes: new { @class = "form-control", placeholder = "Nume de Utilizator" })
+                @Html.LabelFor(viewModel => viewModel.Username)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.PasswordFor(viewModel => viewModel.Password, htmlAttributes: new { @class = "form-control", placeholder = "Parolă", value = Model.Password })
+                @Html.LabelFor(viewModel => viewModel.Password)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.FirstName, htmlAttributes: new { @class = "form-control", placeholder = "Nume" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.FirstName)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.LastName, htmlAttributes: new { @class = "form-control", placeholder = "Prenume" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.LastName)
+            </div>
+            <div class="d-flex mb-3 gap-3">
+                <div class="form-check">
+                    @Html.RadioButtonFor(viewModel => viewModel.UserDetails.Gender, "Femeie", htmlAttributes: new { @class = "form-check-input" }) Femeie
+                </div>
+                <div class="form-check">
+                    @Html.RadioButtonFor(m => m.UserDetails.Gender, "Barbat", htmlAttributes: new { @class = "form-check-input" }) Bărbat
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.Email, htmlAttributes: new { @class = "form-control", placeholder = "E-Mail" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.Email)
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextBoxFor(viewModel => viewModel.UserDetails.PhoneNumber, htmlAttributes: new { @class = "form-control", placeholder = "Număr de Telefon" })
+                @Html.LabelFor(viewModel => viewModel.UserDetails.PhoneNumber)
+            </div>
+            @Html.HiddenFor(viewModel => viewModel.UserID)
+            <div class="text-center">
+                <button class="btn btn-outline-success fs-4 rounded-3 shadow w-100">Modifică informațiile studentului</button>
+            </div>
+        }
+    </div>
+</div>
